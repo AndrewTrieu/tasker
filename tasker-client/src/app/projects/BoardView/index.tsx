@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
 import { useGetTasksQuery, useUpdateTaskStatusMutation } from "@/state/api";
+import React from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/state/api";
@@ -13,28 +13,27 @@ type BoardProps = {
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
-const taskStatuses = ["Backlog", "In Progress", "Test/Review", "Done"];
+const taskStatus = ["To Do", "In Progress", "Test/Review", "Done"];
 
-function BoardView({ id, setIsModalNewTaskOpen }: BoardProps) {
+const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
   const {
     data: tasks,
     isLoading,
     error,
   } = useGetTasksQuery({ projectId: Number(id) });
-
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
 
-  const moveTask = (taskId: number, status: string) => {
-    updateTaskStatus({ taskId, status });
+  const moveTask = (taskId: number, toStatus: string) => {
+    updateTaskStatus({ taskId, status: toStatus });
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error fetching tasks</div>;
+  if (error) return <div>An error occurred while fetching tasks</div>;
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-4">
-        {taskStatuses.map((status) => (
+        {taskStatus.map((status) => (
           <TaskColumn
             key={status}
             status={status}
@@ -46,7 +45,7 @@ function BoardView({ id, setIsModalNewTaskOpen }: BoardProps) {
       </div>
     </DndProvider>
   );
-}
+};
 
 type TaskColumnProps = {
   status: string;
@@ -63,10 +62,8 @@ const TaskColumn = ({
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
-    drop: (item: { id: number }) => {
-      moveTask(item.id, status);
-    },
-    collect: (monitor) => ({
+    drop: (item: { id: number }) => moveTask(item.id, status),
+    collect: (monitor: any) => ({
       isOver: !!monitor.isOver(),
     }),
   }));
@@ -74,7 +71,7 @@ const TaskColumn = ({
   const tasksCount = tasks.filter((task) => task.status === status).length;
 
   const statusColors: any = {
-    Backlog: "#800000",
+    "To Do": "#800000",
     "In Progress": "#efcc00",
     "Test/Review": "#00008b",
     Done: "#006400",
@@ -178,7 +175,7 @@ const Task = ({ task }: TaskProps) => {
     >
       {task.attachments && task.attachments.length > 0 && (
         <Image
-          src={`${task.attachments[0].fileURL}`}
+          src={`/${task.attachments[0].fileURL}`}
           alt={task.attachments[0].fileName}
           width={400}
           height={200}
@@ -230,7 +227,7 @@ const Task = ({ task }: TaskProps) => {
             {task.assignee && (
               <Image
                 key={task.assignee.userId}
-                src={`${task.assignee.profilePictureUrl!}`}
+                src={`/${task.assignee.profilePictureUrl!}`}
                 alt={task.assignee.username}
                 width={30}
                 height={30}
@@ -240,7 +237,7 @@ const Task = ({ task }: TaskProps) => {
             {task.author && (
               <Image
                 key={task.author.userId}
-                src={`${task.author.profilePictureUrl!}`}
+                src={`/${task.author.profilePictureUrl!}`}
                 alt={task.author.username}
                 width={30}
                 height={30}

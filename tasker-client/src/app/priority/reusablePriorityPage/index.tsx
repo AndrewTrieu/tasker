@@ -83,6 +83,8 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     skip: userId === null,
   });
 
+  console.log(tasks);
+
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
 
   const filteredTasks = tasks?.filter(

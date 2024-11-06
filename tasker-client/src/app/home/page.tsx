@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -5,7 +6,7 @@ import {
   Project,
   Task,
   useGetProjectsQuery,
-  useGetTasksQuery,
+  useGetTasksByUserQuery,
 } from "@/state/api";
 import React from "react";
 import { useAppSelector } from "../redux";
@@ -28,19 +29,62 @@ import { dataGridSxStyles } from "@/lib/utils";
 
 const taskColumns: GridColDef[] = [
   { field: "title", headerName: "Title", width: 200 },
-  { field: "status", headerName: "Status", width: 150 },
-  { field: "priority", headerName: "Priority", width: 150 },
+  {
+    field: "status",
+    headerName: "Status",
+    width: 150,
+    renderCell: (params) => (
+      <span
+        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+          params.value === "In Progress"
+            ? "bg-green-200 text-green-600"
+            : params.value === "Test/Review"
+              ? "bg-green-200 text-green-600"
+              : params.value === "Done"
+                ? "bg-green-400 text-green-800"
+                : "bg-gray-400 text-gray-800"
+        }`}
+      >
+        {params.value}
+      </span>
+    ),
+  },
+  {
+    field: "priority",
+    headerName: "Priority",
+    width: 150,
+    renderCell: (params) => (
+      <span
+        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+          params.value === "Urgent"
+            ? "bg-red-200 text-red-700"
+            : params.value === "High"
+              ? "bg-yellow-200 text-yellow-700"
+              : params.value === "Medium"
+                ? "bg-green-200 text-green-700"
+                : params.value === "Low"
+                  ? "bg-blue-200 text-blue-700"
+                  : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        {params.value}
+      </span>
+    ),
+  },
   { field: "dueDate", headerName: "Due Date", width: 150 },
 ];
 
 const statusColors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const HomePage = () => {
+  const userId = 1;
   const {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
-  } = useGetTasksQuery({ projectId: parseInt("1") });
+  } = useGetTasksByUserQuery(userId || 0, {
+    skip: userId === null,
+  });
   const { data: projects, isLoading: isProjectsLoading } =
     useGetProjectsQuery();
 

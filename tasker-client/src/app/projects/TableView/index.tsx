@@ -11,13 +11,6 @@ type Props = {
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
-const statusClasses: any = {
-  Backlog: "bg-red-400 text-red-800",
-  "In Progress": "bg-yellow-400 text-yellow-800",
-  "Test/Review": "bg-blue-400 text-blue-800",
-  Done: "bg-green-400 text-green-800",
-};
-
 const columns: GridColDef[] = [
   {
     field: "title",
@@ -33,10 +26,17 @@ const columns: GridColDef[] = [
     field: "status",
     headerName: "Status",
     width: 130,
-    // Render a colored badge in className based on the status
     renderCell: (params) => (
       <span
-        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${statusClasses[params.value] || "bg-gray-400 text-gray-800"}`}
+        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+          params.value === "In Progress"
+            ? "bg-green-200 text-green-600"
+            : params.value === "Test/Review"
+              ? "bg-green-200 text-green-600"
+              : params.value === "Done"
+                ? "bg-green-400 text-green-800"
+                : "bg-gray-400 text-gray-800"
+        }`}
       >
         {params.value}
       </span>
@@ -46,6 +46,23 @@ const columns: GridColDef[] = [
     field: "priority",
     headerName: "Priority",
     width: 75,
+    renderCell: (params) => (
+      <span
+        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+          params.value === "Urgent"
+            ? "bg-red-200 text-red-700"
+            : params.value === "High"
+              ? "bg-yellow-200 text-yellow-700"
+              : params.value === "Medium"
+                ? "bg-green-200 text-green-700"
+                : params.value === "Low"
+                  ? "bg-blue-200 text-blue-700"
+                  : "bg-gray-200 text-gray-700"
+        }`}
+      >
+        {params.value}
+      </span>
+    ),
   },
   {
     field: "tags",
