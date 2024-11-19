@@ -25,15 +25,29 @@ import { usePathname } from "next/navigation";
 import { setIsSidebarCollapsed } from "@/state";
 import { useAppDispatch, useAppSelector } from "@/app/redux";
 import Link from "next/link";
+import { useGetAuthUserQuery, useGetProjectsQuery } from "@/state/api";
+import { signOut } from "aws-amplify/auth";
 
 const Sidebar = () => {
   const [showProjects, setShowProjects] = React.useState(true);
   const [showPriority, setShowPriority] = React.useState(true);
 
+  const { data: projects } = useGetProjectsQuery();
   const dispatch = useAppDispatch();
   const isSidebarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapsed,
   );
+
+  const { data: currentUser } = useGetAuthUserQuery({});
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+  if (!currentUser) return null;
+  const currentUserDetails = currentUser?.userDetails;
 
   return (
     <div
@@ -77,7 +91,12 @@ const Sidebar = () => {
         </nav>
 
         <button
-          onClick={() => setShowProjects((prev) => !prev)}
+          onClick={() =>
+            setShowProjects((prev) => {
+              console.log(prev);
+              return !prev;
+            })
+          }
           className="flex w-full items-center justify-between px-8 py-3 text-gray-500"
         >
           <span className="">Projects</span>
@@ -87,6 +106,15 @@ const Sidebar = () => {
             <ChevronUpCircleIcon className="h-5 w-5" />
           )}
         </button>
+        {showProjects &&
+          projects?.map((project) => (
+            <SidebarLink
+              key={project.id}
+              icon={Briefcase}
+              label={project.name}
+              href={`/projects/${project.id}`}
+            />
+          ))}
 
         <button
           onClick={() => setShowPriority((prev) => !prev)}
@@ -124,6 +152,32 @@ const Sidebar = () => {
             />
           </>
         )}
+      </div>
+      <div className="z-10 mt-32 flex w-full flex-col items-center gap-4 bg-white px-8 py-4 dark:bg-black md:hidden">
+        <div className="flex w-full items-center">
+          <div className="align-center flex h-9 w-9 justify-center">
+            {!!currentUserDetails?.profilePictureUrl ? (
+              <Image
+                src={`/${currentUserDetails?.profilePictureUrl}`}
+                alt={currentUserDetails?.username || "User Profile Picture"}
+                width={100}
+                height={50}
+                className="h-full rounded-full object-cover"
+              />
+            ) : (
+              <User className="h-6 w-6 cursor-pointer self-center rounded-full dark:text-white" />
+            )}
+          </div>
+          <span className="mx-3 text-gray-800 dark:text-white">
+            {currentUserDetails?.username}
+          </span>
+          <button
+            className="self-start rounded bg-blue-400 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 md:block"
+            onClick={handleSignOut}
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </div>
   );
