@@ -41,6 +41,20 @@ const formFields = {
       inputProps: { type: "password", required: true },
     },
   },
+  signIn: {
+    username: {
+      order: 1,
+      placeholder: "Enter your username or email",
+      label: "Username or Email",
+      inputProps: { required: true },
+    },
+    password: {
+      order: 2,
+      placeholder: "Enter your password",
+      label: "Password",
+      inputProps: { type: "password", required: true },
+    },
+  },
 };
 
 const AuthProvider = ({ children }: any) => {
