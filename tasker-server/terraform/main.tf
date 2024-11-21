@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "gamelog-terraform-tfstate"
+    bucket = "tasker-tf-infra"
     key    = "terraform.tfstate"
-    region = "eu-west-1"
+    region = "eu-north-1"
   }
 }
 
