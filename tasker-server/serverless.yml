@@ -1,0 +1,164 @@
+service: tasker-server
+
+plugins:
+  - serverless-prune-plugin
+
+provider:
+  stackName: ${self:service}
+  name: aws
+  region: ${opt:region, 'eu-north-1'}
+  runtime: nodejs20.x
+  environment:
+    SLS_REGION: ${self:provider.region}
+    TASKER_TASK_TABLE_NAME: ${ssm:/tasker/dynamodb/project-table-name}
+    TASKER_PROJECT_TABLE_NAME: ${ssm:/tasker/dynamodb/task-table-name}
+    TASKER_USER_TABLE_NAME: ${ssm:/tasker/dynamodb/user-table-name}
+    TASKER_TASK_EXTRA_TABLE_NAME: ${ssm:/tasker/dynamodb/task-extra-table-name}
+    TASKER_TEAM_TABLE_NAME: ${ssm:/tasker/dynamodb/team-table-name}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+          Resource:
+            [
+              "arn:aws:dynamodb:${self:provider.region}:*:table/tasker-*",
+              "arn:aws:dynamodb:${self:provider.region}:*:table/tasker-*/*",
+            ]
+
+functions:
+  # POST /users
+  createUser:
+    handler: src/handlers/createUser.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: users
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # POST /projects
+  createProject:
+    handler: src/handlers/createProject.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: projects
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # POST /tasks
+  createTask:
+    handler: src/handlers/createTask.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: tasks
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # GET /projects
+  getProjects:
+    handler: src/handlers/getProjects.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: projects
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # GET /tasks?projectId=
+  getTasks:
+    handler: src/handlers/getTasks.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: tasks
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # GET /teams
+  getTeams:
+    handler: src/handlers/getTeams.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: teams
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # GET /users
+  getUsers:
+    handler: src/handlers/getUsers.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: users
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # GET /users/{cognitoId}
+  getUser:
+    handler: src/handlers/getUser.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: users/{cognitoId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # GET /tasks/user/${userId}
+  getTasksByUser:
+    handler: src/handlers/getTasksByUser.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: tasks/user/{userId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}
+  # PATCH /tasks/{taskId}/status
+  updateTaskStatus:
+    handler: src/handlers/updateTaskStatus.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - http:
+          path: tasks/{taskId}/status
+          method: patch
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            arn: ${ssm:/tasker/cognito/user-pool-arn}

@@ -76,6 +76,13 @@ resource "aws_ssm_parameter" "user_pool_id" {
   value       = aws_cognito_user_pool.tasker_cognito_user_pool.id
 }
 
+resource "aws_ssm_parameter" "user_pool_arn" {
+  name        = "/tasker/cognito/user-pool-arn"
+  description = "Tasker Cognito User Pool ARN"
+  type        = "String"
+  value       = aws_cognito_user_pool.tasker_cognito_user_pool.arn
+}
+
 resource "aws_ssm_parameter" "client_id" {
   name        = "/tasker/cognito/client-id"
   description = "Tasker Cognito Client ID"

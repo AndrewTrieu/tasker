@@ -11,12 +11,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/uuid": "^10.0.0",
     "aws-sdk": "^2.1692.0"
   },
   "devDependencies": {
     "@types/node": "^22.9.1",
     "eslint": "^9.15.0",
     "prettier": "^3.3.3",
+    "serverless-prune-plugin": "^2.1.0",
     "typescript": "^5.6.3"
   }
 }
