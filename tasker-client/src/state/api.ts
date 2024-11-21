@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
 
 export interface Project {
-  id: number;
+  projectId: string;
   name: string;
   description?: string;
   startDate?: string;
@@ -26,24 +26,24 @@ export enum Status {
 }
 
 export interface User {
-  userId?: number;
+  userId?: string;
   username: string;
   email: string;
   profilePictureUrl?: string;
   cognitoId?: string;
-  teamId?: number;
+  teamId?: string;
 }
 
 export interface Attachment {
-  id: number;
+  attachmentId: string;
   fileURL: string;
   fileName: string;
-  taskId: number;
-  uploadedById: number;
+  taskId: string;
+  uploadedById: string;
 }
 
 export interface Task {
-  id: number;
+  taskId: string;
   title: string;
   description?: string;
   status?: Status;
@@ -52,9 +52,9 @@ export interface Task {
   startDate?: string;
   dueDate?: string;
   points?: number;
-  projectId: number;
-  authorUserId?: number;
-  assignedUserId?: number;
+  projectId: string;
+  authorUserId?: string;
+  assignedUserId?: string;
 
   author?: User;
   assignee?: User;
@@ -69,10 +69,10 @@ export interface SearchResults {
 }
 
 export interface Team {
-  teamId: number;
+  teamId: string;
   teamName: string;
-  productOwnerUserId?: number;
-  projectManagerUserId?: number;
+  productOwnerUserId?: string;
+  projectManagerUserId?: string;
 }
 
 export const api = createApi({
@@ -124,15 +124,15 @@ export const api = createApi({
       query: ({ projectId }) => `tasks?projectId=${projectId}`,
       providesTags: (result) =>
         result
-          ? result.map(({ id }) => ({ type: "Tasks" as const, id }))
+          ? result.map(({ taskId }) => ({ type: "Tasks" as const, taskId }))
           : [{ type: "Tasks" as const }],
     }),
-    getTasksByUser: build.query<Task[], number>({
+    getTasksByUser: build.query<Task[], string>({
       query: (userId) => `tasks/user/${userId}`,
       providesTags: (result, error, userId) =>
         result
-          ? result.map(({ id }) => ({ type: "Tasks", id }))
-          : [{ type: "Tasks", id: userId }],
+          ? result.map(({ taskId }) => ({ type: "Tasks", taskId }))
+          : [{ type: "Tasks", taskId: userId }],
     }),
     createTask: build.mutation<Task, Partial<Task>>({
       query: (task) => ({
@@ -142,7 +142,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["Tasks"],
     }),
-    updateTaskStatus: build.mutation<Task, { taskId: number; status: string }>({
+    updateTaskStatus: build.mutation<Task, { taskId: string; status: string }>({
       query: ({ taskId, status }) => ({
         url: `tasks/${taskId}/status`,
         method: "PATCH",
