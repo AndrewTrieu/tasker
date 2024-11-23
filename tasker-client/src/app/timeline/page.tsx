@@ -24,7 +24,7 @@ const Timeline = () => {
         start: new Date(project.startDate as string),
         end: new Date(project.endDate as string),
         name: project.name,
-        id: `Project-${project.id}`,
+        id: `Project-${project.projectId}`,
         type: "project" as TaskTypeItems,
         progress: 50,
         isDisabled: false,

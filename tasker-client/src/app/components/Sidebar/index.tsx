@@ -93,7 +93,6 @@ const Sidebar = () => {
         <button
           onClick={() =>
             setShowProjects((prev) => {
-              console.log(prev);
               return !prev;
             })
           }
@@ -109,10 +108,10 @@ const Sidebar = () => {
         {showProjects &&
           projects?.map((project) => (
             <SidebarLink
-              key={project.id}
+              key={project.projectId}
               icon={Briefcase}
               label={project.name}
-              href={`/projects/${project.id}`}
+              href={`/projects/${project.projectId}`}
             />
           ))}
 

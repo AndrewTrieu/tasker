@@ -5,19 +5,15 @@ import "gantt-task-react/dist/index.css";
 import React, { useMemo, useState } from "react";
 
 type Props = {
-  id: string;
+  projectId: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
 type TaskTypeItems = "task" | "milestone" | "project";
 
-const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
+const Timeline = ({ projectId, setIsModalNewTaskOpen }: Props) => {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  const { data: tasks, error, isLoading } = useGetTasksQuery({ projectId });
 
   const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
     viewMode: ViewMode.Month,
@@ -30,7 +26,7 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
         start: new Date(task.startDate as string),
         end: new Date(task.dueDate as string),
         name: task.title,
-        id: `Task-${task.id}`,
+        id: `Task-${task.taskId}`,
         type: "task" as TaskTypeItems,
         progress: task.points ? (task.points / 10) * 100 : 0,
         isDisabled: false,

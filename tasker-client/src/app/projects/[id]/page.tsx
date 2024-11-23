@@ -26,16 +26,19 @@ const Project = ({ params }: Props) => {
       />
       <ProjectHeader activeTab={activeTab} setActiveTab={setActiveTab} />
       {activeTab === "Board" && (
-        <Board id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Board projectId={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
       )}
       {activeTab === "List" && (
-        <List id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <List projectId={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
       )}
       {activeTab === "Timeline" && (
-        <Timeline id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Timeline
+          projectId={id}
+          setIsModalNewTaskOpen={setIsModalNewTaskOpen}
+        />
       )}
       {activeTab === "Table" && (
-        <Table id={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
+        <Table projectId={id} setIsModalNewTaskOpen={setIsModalNewTaskOpen} />
       )}
     </div>
   );

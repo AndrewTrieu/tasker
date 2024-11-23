@@ -5,6 +5,7 @@ import {
   Priority,
   Project,
   Task,
+  useGetAuthUserQuery,
   useGetProjectsQuery,
   useGetTasksByUserQuery,
 } from "@/state/api";
@@ -77,12 +78,13 @@ const taskColumns: GridColDef[] = [
 const statusColors = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const HomePage = () => {
-  const userId = 1;
+  const { data: currentUser } = useGetAuthUserQuery({});
+  const userId = currentUser?.userDetails?.userId ?? null;
   const {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
-  } = useGetTasksByUserQuery(userId || 0, {
+  } = useGetTasksByUserQuery(userId || "", {
     skip: userId === null,
   });
   const { data: projects, isLoading: isProjectsLoading } =
@@ -191,6 +193,7 @@ const HomePage = () => {
               columns={taskColumns}
               checkboxSelection
               loading={tasksLoading}
+              getRowId={(row) => row.taskId}
               getRowClassName={() => "data-grid-row"}
               getCellClassName={() => "data-grid-cell"}
               className="border border-gray-200 bg-white shadow dark:border-stroke-dark dark:bg-dark-secondary dark:text-gray-200"

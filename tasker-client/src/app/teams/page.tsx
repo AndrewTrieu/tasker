@@ -20,7 +20,7 @@ const CustomToolbar = () => (
 );
 
 const columns: GridColDef[] = [
-  { field: "id", headerName: "Team ID", width: 100 },
+  { field: "teamId", headerName: "Team ID", width: 100 },
   { field: "teamName", headerName: "Team Name", width: 200 },
   { field: "productOwnerUsername", headerName: "Product Owner", width: 200 },
   {
@@ -48,6 +48,7 @@ const Teams = () => {
           slots={{
             toolbar: CustomToolbar,
           }}
+          getRowId={(row) => row.teamId}
           className="border border-gray-200 bg-white shadow dark:border-stroke-dark dark:bg-dark-secondary dark:text-gray-200"
           sx={dataGridSxStyles(isDarkMode)}
         />

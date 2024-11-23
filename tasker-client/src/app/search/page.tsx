@@ -49,14 +49,14 @@ const Search = () => {
               <h2>Tasks</h2>
             )}
             {searchResults.tasks?.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.taskId} task={task} />
             ))}
 
             {searchResults.projects && searchResults.projects?.length > 0 && (
               <h2>Projects</h2>
             )}
             {searchResults.projects?.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard key={project.projectId} project={project} />
             ))}
 
             {searchResults.users && searchResults.users?.length > 0 && (

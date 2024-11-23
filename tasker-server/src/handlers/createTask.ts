@@ -25,7 +25,7 @@ export const handler = async (event: any): Promise<any> => {
   try {
     const newTask = {
       category: "tasks",
-      taskId: `task#${uuidv4()}`,
+      taskId: `task_${uuidv4()}`,
       title,
       description,
       status,

@@ -10,6 +10,7 @@ const client = new DynamoDBClient({ region: SLS_REGION });
 const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
+  console.info(`Event: ${JSON.stringify(event)}`);
   const username =
     event.request.userAttributes["preferred_username"] || event.userName;
   const cognitoId = event.userName;
@@ -19,9 +20,9 @@ export const handler = async (event: any): Promise<any> => {
     const newUser = {
       category: "users",
       cognitoId,
-      userId: `user#${uuidv4()}`,
+      userId: `user_${uuidv4()}`,
       username,
-      profilePictureUrl: "i0.jpg",
+      profilePictureUrl: "p0.jpeg",
       teamId,
     };
 

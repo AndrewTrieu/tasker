@@ -40,6 +40,11 @@ provider:
             - "arn:aws:execute-api:${self:provider.region}:*:*/*/POST/users"
 
 functions:
+  populateSeedData:
+    handler: seed/populateSeedData.handler
+    memorySize: 1024
+    timeout: 60
+
   # POST /users or triggered by Cognito
   createUser:
     handler: src/handlers/createUser.handler

@@ -14,7 +14,7 @@ export const handler = async (event: any): Promise<any> => {
   try {
     const newProject = {
       category: "projects",
-      projectId: `project#${uuidv4()}`,
+      projectId: `project_${uuidv4()}`,
       name,
       description,
       startDate,

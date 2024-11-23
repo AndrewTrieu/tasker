@@ -2,7 +2,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocument, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 
 const SLS_REGION = process.env.SLS_REGION;
-const TASKER_PROJECT_TABLE_NAME = process.env.TASKER_PROJECT_TABLE_NAME || "";
+const TASKER_TEAM_TABLE_NAME = process.env.TASKER_TEAM_TABLE_NAME || "";
 const TASKER_USER_TABLE_NAME = process.env.TASKER_USER_TABLE_NAME || "";
 const TASKER_TASK_TABLE_NAME = process.env.TASKER_TASK_TABLE_NAME || "";
 const TASKER_TASK_EXTRA_TABLE_NAME =
@@ -13,20 +13,20 @@ const docClient = DynamoDBDocument.from(client);
 
 export const fetchRandomTeamId = async () => {
   const params = {
-    TableName: TASKER_PROJECT_TABLE_NAME,
+    TableName: TASKER_TEAM_TABLE_NAME,
     KeyConditionExpression: "category = :category",
     ExpressionAttributeValues: {
       ":category": "teams",
     },
   };
 
-  const projects = await docClient.query(params);
-  if (!projects.Items) {
+  const teams = await docClient.query(params);
+  if (!teams.Items) {
     return null;
   }
-  const randomProject =
-    projects.Items[Math.floor(Math.random() * projects.Items.length)];
-  return randomProject.id;
+  const randomTeam =
+    teams.Items[Math.floor(Math.random() * teams.Items.length)];
+  return randomTeam.teamId;
 };
 
 export const fetchUserWithUserId = async (userId: string): Promise<any> => {
