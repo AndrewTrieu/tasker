@@ -1,0 +1,25 @@
+version: 1.0
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd tasker-client
+        - npm ci
+    build:
+      commands:
+        - cd tasker-client
+        - npm run build
+  artifacts:
+    baseDirectory: tasker-client/.next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - tasker-client/node_modules/**/*
+env:
+  variables:
+    # To be populated by GitHub Actions
+    NEXT_PUBLIC_API_BASE_URL: ""
+    NEXT_PUBLIC_COGNITO_USER_POOL_ID: ""
+    NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID: ""
+    S3_PUBLIC_IMAGE_URL: ""
