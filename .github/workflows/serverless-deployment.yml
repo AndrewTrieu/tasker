@@ -1,0 +1,59 @@
+name: Deploy with Serverless Framework
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "tasker-server/**"
+
+jobs:
+  checkout-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+  install-deps:
+    runs-on: ubuntu-latest
+    needs: checkout-code
+    steps:
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+
+      - name: Verify AWS CLI Installation
+        run: aws --version
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+
+  assume-role:
+    runs-on: ubuntu-latest
+    needs: install-deps
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+  deploy-serverless:
+    runs-on: ubuntu-latest
+    needs: [checkout-code, assume-role, install-deps]
+    steps:
+      - name: Deploy Serverless Application
+        run: |
+          cd tasker-server
+          serverless deploy

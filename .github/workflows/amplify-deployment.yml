@@ -38,7 +38,7 @@ jobs:
       - name: Verify Amplify CLI Installation
         run: amplify --version
 
-  add-credentials:
+  assume-role:
     runs-on: ubuntu-latest
     needs: install-cli
     steps:
@@ -50,7 +50,7 @@ jobs:
 
   deploy-amplify:
     runs-on: ubuntu-latest
-    needs: [checkout-code, add-credentials, install-cli]
+    needs: [checkout-code, assume-role, install-cli]
     steps:
       - name: Fetch API URL from SSM
         id: fetch-ssm
