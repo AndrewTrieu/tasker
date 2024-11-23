@@ -71,6 +71,8 @@ jobs:
           amplify env set NEXT_PUBLIC_COGNITO_USER_POOL_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_ID
           amplify env set NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID
           amplify env set S3_PUBLIC_IMAGE_URL=$S3_PUBLIC_IMAGE_URL
+          amplify env set AMPLIFY_MONOREPO_APP_ROOT=tasker-client
+          amplify env set AMPLIFY_DIFF_DEPLOY=false
 
       - name: Deploy Amplify App
         run: |
