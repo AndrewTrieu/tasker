@@ -40,15 +40,7 @@ provider:
             - "arn:aws:execute-api:${self:provider.region}:*:*/*/POST/users"
 
 functions:
-  postSignUp:
-    handler: src/handlers/postSignUp.handler
-    memorySize: 1024
-    timeout: 60
-    events:
-      - cognitoUserPool:
-          pool: ${ssm:/tasker/cognito/user-pool-id}
-          trigger: PostConfirmation
-  # POST /users
+  # POST /users or triggered by Cognito
   createUser:
     handler: src/handlers/createUser.handler
     memorySize: 1024
@@ -59,6 +51,10 @@ functions:
           method: post
           cors: true
           authorizer: aws_iam
+      - cognitoUserPool:
+          existing: true
+          pool: ${ssm:/tasker/cognito/user-pool-name}
+          trigger: PostConfirmation
   # POST /projects
   createProject:
     handler: src/handlers/createProject.handler
@@ -151,8 +147,8 @@ functions:
             type: COGNITO_USER_POOLS
             arn: ${ssm:/tasker/cognito/user-pool-arn}
   # GET /tasks/user/${userId}
-  getTasksByUser:
-    handler: src/handlers/getTasksByUser.handler
+  getUserTasks:
+    handler: src/handlers/getUserTasks.handler
     memorySize: 1024
     timeout: 60
     events:

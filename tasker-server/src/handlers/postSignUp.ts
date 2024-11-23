@@ -10,6 +10,8 @@ export const handler = async (event: any): Promise<any> => {
     cognitoId: event.userName,
   });
 
+  console.log(postData);
+
   const options = {
     hostname: API_BASE_URL ? new URL(API_BASE_URL).hostname : "",
     port: 443,
@@ -20,6 +22,7 @@ export const handler = async (event: any): Promise<any> => {
     headers: {
       "Content-category": "application/json",
       "Content-Length": Buffer.byteLength(postData),
+      "Allow-Control-Allow-Origin": "*",
     },
   };
 
@@ -34,6 +37,8 @@ export const handler = async (event: any): Promise<any> => {
     req.write(postData);
     req.end();
   });
+
+  console.log(responseBody);
 
   return event;
 };

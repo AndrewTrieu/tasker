@@ -48,13 +48,19 @@ export const handler = async (event: any): Promise<any> => {
 
     return {
       statusCode: 201,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
       body: JSON.stringify(newTask),
     };
   } catch (error: any) {
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
       body: JSON.stringify({
         message: `Error creating task: ${error.message}`,
       }),
