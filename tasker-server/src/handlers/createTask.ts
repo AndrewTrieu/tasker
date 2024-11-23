@@ -1,10 +1,12 @@
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocument, PutCommandInput } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 
 const SLS_REGION = process.env.SLS_REGION;
 const TASKER_TASK_TABLE_NAME = process.env.TASKER_TASK_TABLE_NAME || "";
 
-const docClient = new DynamoDB.DocumentClient({ region: SLS_REGION });
+const client = new DynamoDBClient({ region: SLS_REGION });
+const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
   const {
@@ -22,7 +24,7 @@ export const handler = async (event: any): Promise<any> => {
   } = event.body;
   try {
     const newTask = {
-      type: "tasks",
+      category: "tasks",
       taskId: `task#${uuidv4()}`,
       title,
       description,
@@ -37,12 +39,12 @@ export const handler = async (event: any): Promise<any> => {
       assignedUserId,
     };
 
-    const params = {
+    const params: PutCommandInput = {
       TableName: TASKER_TASK_TABLE_NAME,
       Item: newTask,
     };
 
-    await docClient.put(params).promise();
+    await docClient.put(params);
 
     return {
       status: 201,

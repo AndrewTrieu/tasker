@@ -1,18 +1,20 @@
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocument, UpdateCommandInput } from "@aws-sdk/lib-dynamodb";
 
 const SLS_REGION = process.env.SLS_REGION;
 const TASKER_TASK_TABLE_NAME = process.env.TASKER_TASK_TABLE_NAME || "";
 
-const docClient = new DynamoDB.DocumentClient({ region: SLS_REGION });
+const client = new DynamoDBClient({ region: SLS_REGION });
+const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
   const { taskId } = event.pathParameters;
   const { status } = event.body;
   try {
-    const params = {
+    const params: UpdateCommandInput = {
       TableName: TASKER_TASK_TABLE_NAME,
       Key: {
-        type: "tasks",
+        category: "tasks",
         taskId,
       },
       UpdateExpression: "set #status = :status",
@@ -25,7 +27,7 @@ export const handler = async (event: any): Promise<any> => {
       ReturnValues: "ALL_NEW",
     };
 
-    const updatedTask = await docClient.update(params).promise();
+    const updatedTask = await docClient.update(params);
 
     return {
       status: 200,

@@ -5,14 +5,21 @@
   "scripts": {
     "infra:init": "cd terraform && AWS_PROFILE=default terraform init",
     "infra:plan": "cd terraform && AWS_PROFILE=default terraform plan",
-    "infra:apply": "cd terraform && AWS_PROFILE=default terraform apply"
+    "infra:apply": "cd terraform && AWS_PROFILE=default terraform apply",
+    "infra:destroy": "cd terraform && AWS_PROFILE=default terraform destroy",
+    "sls:package": "AWS_PROFILE=default sls package",
+    "sls:deploy": "AWS_PROFILE=default sls deploy",
+    "sls:remove": "AWS_PROFILE=default sls remove"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.699.0",
+    "@aws-sdk/lib-dynamodb": "^3.699.0",
     "@types/uuid": "^10.0.0",
-    "aws-sdk": "^2.1692.0"
+    "aws-sdk": "^2.1692.0",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@types/node": "^22.9.1",

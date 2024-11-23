@@ -6,7 +6,7 @@ plugins:
 provider:
   stackName: ${self:service}
   name: aws
-  region: ${opt:region, 'eu-north-1'}
+  region: "eu-north-1"
   runtime: nodejs20.x
   environment:
     SLS_REGION: ${self:provider.region}
@@ -15,6 +15,8 @@ provider:
     TASKER_USER_TABLE_NAME: ${ssm:/tasker/dynamodb/user-table-name}
     TASKER_TASK_EXTRA_TABLE_NAME: ${ssm:/tasker/dynamodb/task-extra-table-name}
     TASKER_TEAM_TABLE_NAME: ${ssm:/tasker/dynamodb/team-table-name}
+  layers:
+    - ${ssm:/tasker/layers/tasker-layer-arn}
   iam:
     role:
       statements:
@@ -32,6 +34,14 @@ provider:
             ]
 
 functions:
+  postSignUp:
+    handler: src/handlers/postSignUp.handler
+    memorySize: 1024
+    timeout: 60
+    events:
+      - cognitoUserPool:
+          pool: ${ssm:/tasker/cognito/user-pool-id}
+          trigger: PostConfirmation
   # POST /users
   createUser:
     handler: src/handlers/createUser.handler
@@ -42,9 +52,6 @@ functions:
           path: users
           method: post
           cors: true
-          authorizer:
-            type: COGNITO_USER_POOLS
-            arn: ${ssm:/tasker/cognito/user-pool-arn}
   # POST /projects
   createProject:
     handler: src/handlers/createProject.handler

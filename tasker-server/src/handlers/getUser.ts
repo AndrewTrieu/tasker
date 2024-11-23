@@ -1,23 +1,25 @@
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocument, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 
 const SLS_REGION = process.env.SLS_REGION;
 const TASKER_USER_TABLE_NAME = process.env.TASKER_USER_TABLE_NAME || "";
 
-const docClient = new DynamoDB.DocumentClient({ region: SLS_REGION });
+const client = new DynamoDBClient({ region: SLS_REGION });
+const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
   const { cognitoId } = event.pathParameters;
   try {
-    const params = {
+    const params: QueryCommandInput = {
       TableName: TASKER_USER_TABLE_NAME,
-      KeyConditionExpression: "type = :type AND cognitoId = :cognitoId",
+      KeyConditionExpression: "category = :category AND cognitoId = :cognitoId",
       ExpressionAttributeValues: {
-        ":type": "users",
+        ":category": "users",
         ":cognitoId": cognitoId,
       },
     };
 
-    const user = await docClient.query(params).promise();
+    const user = await docClient.query(params);
 
     return {
       status: 200,

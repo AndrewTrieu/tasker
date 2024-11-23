@@ -1,22 +1,24 @@
 import { fetchUserWithUserId } from "@/lib/util";
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocument, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 
 const SLS_REGION = process.env.SLS_REGION;
 const TASKER_TEAM_TABLE_NAME = process.env.TASKER_TEAM_TABLE_NAME || "";
 
-const docClient = new DynamoDB.DocumentClient({ region: SLS_REGION });
+const client = new DynamoDBClient({ region: SLS_REGION });
+const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
   try {
-    const params = {
+    const params: QueryCommandInput = {
       TableName: TASKER_TEAM_TABLE_NAME,
-      KeyConditionExpression: "type = :type",
+      KeyConditionExpression: "category = :category",
       ExpressionAttributeValues: {
-        ":type": "teams",
+        ":category": "teams",
       },
     };
 
-    const result = await docClient.query(params).promise();
+    const result = await docClient.query(params);
     const teams = result.Items || [];
 
     const teamsWithUsernames = await Promise.all(

@@ -3,27 +3,29 @@ import {
   fetchComments,
   fetchUserWithUserId,
 } from "@/lib/util";
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocument, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 
 const SLS_REGION = process.env.SLS_REGION;
 const TASKER_TASK_TABLE_NAME = process.env.TASKER_TASK_TABLE_NAME || "";
 
-const docClient = new DynamoDB.DocumentClient({ region: SLS_REGION });
+const client = new DynamoDBClient({ region: SLS_REGION });
+const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
   const { projectId } = event.queryStringParameters;
   try {
-    const params = {
+    const params: QueryCommandInput = {
       TableName: TASKER_TASK_TABLE_NAME,
-      KeyConditionExpression: "type = :type AND projectId = :projectId",
+      KeyConditionExpression: "category = :category AND projectId = :projectId",
       IndexName: "GSI-project-id",
       ExpressionAttributeValues: {
-        ":type": "tasks",
+        ":category": "tasks",
         ":projectId": projectId,
       },
     };
 
-    const result = await docClient.query(params).promise();
+    const result = await docClient.query(params);
     const tasks = result.Items || [];
 
     const tasksWithDetails = await Promise.all(

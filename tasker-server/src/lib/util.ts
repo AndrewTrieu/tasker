@@ -1,4 +1,5 @@
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocument, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 
 const SLS_REGION = process.env.SLS_REGION;
 const TASKER_PROJECT_TABLE_NAME = process.env.TASKER_PROJECT_TABLE_NAME || "";
@@ -7,18 +8,19 @@ const TASKER_TASK_TABLE_NAME = process.env.TASKER_TASK_TABLE_NAME || "";
 const TASKER_TASK_EXTRA_TABLE_NAME =
   process.env.TASKER_TASK_EXTRA_TABLE_NAME || "";
 
-const docClient = new DynamoDB.DocumentClient({ region: SLS_REGION });
+const client = new DynamoDBClient({ region: SLS_REGION });
+const docClient = DynamoDBDocument.from(client);
 
 export const fetchRandomTeamId = async () => {
   const params = {
     TableName: TASKER_PROJECT_TABLE_NAME,
-    KeyConditionExpression: "type = :type",
+    KeyConditionExpression: "category = :category",
     ExpressionAttributeValues: {
-      ":type": "teams",
+      ":category": "teams",
     },
   };
 
-  const projects = await docClient.query(params).promise();
+  const projects = await docClient.query(params);
   if (!projects.Items) {
     return null;
   }
@@ -28,47 +30,47 @@ export const fetchRandomTeamId = async () => {
 };
 
 export const fetchUserWithUserId = async (userId: string): Promise<any> => {
-  const params: DynamoDB.DocumentClient.QueryInput = {
+  const params: QueryCommandInput = {
     TableName: TASKER_USER_TABLE_NAME,
-    KeyConditionExpression: "type = :type AND userId = :userId",
+    KeyConditionExpression: "category = :category AND userId = :userId",
     IndexName: "GSI-user-id",
     ExpressionAttributeValues: {
-      ":type": "users",
+      ":category": "users",
       ":userId": userId,
     },
   };
 
-  const result = await docClient.query(params).promise();
+  const result = await docClient.query(params);
   return result.Items?.[0];
 };
 
 export const fetchComments = async (taskId: string): Promise<any> => {
-  const params: DynamoDB.DocumentClient.QueryInput = {
+  const params: QueryCommandInput = {
     TableName: TASKER_TASK_EXTRA_TABLE_NAME,
-    KeyConditionExpression: "type = :type AND taskId = :taskId",
+    KeyConditionExpression: "category = :category AND taskId = :taskId",
     IndexName: "GSI-task-id",
     ExpressionAttributeValues: {
-      ":type": "comments",
+      ":category": "comments",
       ":taskId": taskId,
     },
   };
 
-  const result = await docClient.query(params).promise();
+  const result = await docClient.query(params);
   return result.Items;
 };
 
 export const fetchAttachments = async (taskId: string): Promise<any> => {
-  const params: DynamoDB.DocumentClient.QueryInput = {
+  const params: QueryCommandInput = {
     TableName: TASKER_TASK_EXTRA_TABLE_NAME,
-    KeyConditionExpression: "type = :type AND taskId = :taskId",
+    KeyConditionExpression: "category = :category AND taskId = :taskId",
     IndexName: "GSI-task-id",
     ExpressionAttributeValues: {
-      ":type": "attachments",
+      ":category": "attachments",
       ":taskId": taskId,
     },
   };
 
-  const result = await docClient.query(params).promise();
+  const result = await docClient.query(params);
   return result.Items;
 };
 
@@ -76,13 +78,13 @@ export const queryTasks = async (
   userId: string,
   indexName: string,
   key: string
-): Promise<DynamoDB.ItemList> => {
-  const params = {
+): Promise<any> => {
+  const params: QueryCommandInput = {
     TableName: TASKER_TASK_TABLE_NAME,
-    KeyConditionExpression: "type = :type AND #key = :userId",
+    KeyConditionExpression: "category = :category AND #key = :userId",
     IndexName: indexName,
     ExpressionAttributeValues: {
-      ":type": "tasks",
+      ":category": "tasks",
       ":userId": userId,
     },
     ExpressionAttributeNames: {
@@ -90,6 +92,6 @@ export const queryTasks = async (
     },
   };
 
-  const result = await docClient.query(params).promise();
+  const result = await docClient.query(params);
   return result.Items ?? [];
 };

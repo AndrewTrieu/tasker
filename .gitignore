@@ -22,7 +22,13 @@
 **/next-env.d.ts
 
 # images
-**/public/**
+tasker-client/public/**
 
 # terraform
-**/**/.terraform**
+**/.terraform**
+
+# serverless
+**/.serverless/**
+
+# zipped layers
+**/layers/**.zip
