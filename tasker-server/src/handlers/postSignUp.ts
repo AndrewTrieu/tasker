@@ -1,4 +1,7 @@
 import https from "https";
+import path from "path";
+
+const API_BASE_URL = process.env.API_BASE_URL || "";
 
 export const handler = async (event: any): Promise<any> => {
   const postData = JSON.stringify({
@@ -8,9 +11,11 @@ export const handler = async (event: any): Promise<any> => {
   });
 
   const options = {
-    hostname: process.env.API_URL,
+    hostname: API_BASE_URL ? new URL(API_BASE_URL).hostname : "",
     port: 443,
-    path: "/users",
+    path: API_BASE_URL
+      ? path.join(new URL(API_BASE_URL).pathname, "/users")
+      : "",
     method: "POST",
     headers: {
       "Content-category": "application/json",
@@ -18,7 +23,7 @@ export const handler = async (event: any): Promise<any> => {
     },
   };
 
-  const responseBody = new Promise((resolve, reject) => {
+  const responseBody = await new Promise((resolve, reject) => {
     const req = https.request(options, (res) => {
       res.setEncoding("utf8");
       let responseBody = "";

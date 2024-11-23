@@ -9,7 +9,7 @@ const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
   const { taskId } = event.pathParameters;
-  const { status } = event.body;
+  const { status } = JSON.parse(event.body);
   try {
     const params: UpdateCommandInput = {
       TableName: TASKER_TASK_TABLE_NAME,
@@ -30,12 +30,14 @@ export const handler = async (event: any): Promise<any> => {
     const updatedTask = await docClient.update(params);
 
     return {
-      status: 200,
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedTask.Attributes),
     };
   } catch (error: any) {
     return {
-      status: 500,
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: `Error updating task: ${error.message}`,
       }),

@@ -9,7 +9,8 @@ const client = new DynamoDBClient({ region: SLS_REGION });
 const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
-  const { name, description, startDate, endDate } = event.body;
+  const { name, description, startDate, endDate } = JSON.parse(event.body);
+
   try {
     const newProject = {
       category: "projects",
@@ -28,12 +29,14 @@ export const handler = async (event: any): Promise<any> => {
     await docClient.put(params);
 
     return {
-      status: 201,
+      statusCode: 201,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newProject),
     };
   } catch (error: any) {
     return {
-      status: 500,
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: `Error creating project: ${error.message}`,
       }),

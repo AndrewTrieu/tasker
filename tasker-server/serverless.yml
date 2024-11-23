@@ -10,8 +10,9 @@ provider:
   runtime: nodejs20.x
   environment:
     SLS_REGION: ${self:provider.region}
-    TASKER_TASK_TABLE_NAME: ${ssm:/tasker/dynamodb/project-table-name}
-    TASKER_PROJECT_TABLE_NAME: ${ssm:/tasker/dynamodb/task-table-name}
+    API_BASE_URL: ${ssm:/tasker/api/base-url}
+    TASKER_TASK_TABLE_NAME: ${ssm:/tasker/dynamodb/task-table-name}
+    TASKER_PROJECT_TABLE_NAME: ${ssm:/tasker/dynamodb/project-table-name}
     TASKER_USER_TABLE_NAME: ${ssm:/tasker/dynamodb/user-table-name}
     TASKER_TASK_EXTRA_TABLE_NAME: ${ssm:/tasker/dynamodb/task-extra-table-name}
     TASKER_TEAM_TABLE_NAME: ${ssm:/tasker/dynamodb/team-table-name}
@@ -32,6 +33,11 @@ provider:
               "arn:aws:dynamodb:${self:provider.region}:*:table/tasker-*",
               "arn:aws:dynamodb:${self:provider.region}:*:table/tasker-*/*",
             ]
+        - Effect: Allow
+          Action:
+            - execute-api:Invoke
+          Resource:
+            - "arn:aws:execute-api:${self:provider.region}:*:*/*/POST/users"
 
 functions:
   postSignUp:
@@ -52,6 +58,7 @@ functions:
           path: users
           method: post
           cors: true
+          authorizer: aws_iam
   # POST /projects
   createProject:
     handler: src/handlers/createProject.handler

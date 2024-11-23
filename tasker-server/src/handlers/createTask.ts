@@ -21,7 +21,7 @@ export const handler = async (event: any): Promise<any> => {
     projectId,
     authorUserId,
     assignedUserId,
-  } = event.body;
+  } = JSON.parse(event.body);
   try {
     const newTask = {
       category: "tasks",
@@ -47,12 +47,14 @@ export const handler = async (event: any): Promise<any> => {
     await docClient.put(params);
 
     return {
-      status: 201,
+      statusCode: 201,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newTask),
     };
   } catch (error: any) {
     return {
-      status: 500,
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: `Error creating task: ${error.message}`,
       }),

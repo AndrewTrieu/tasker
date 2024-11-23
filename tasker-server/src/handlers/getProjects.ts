@@ -20,12 +20,14 @@ export const handler = async (event: any): Promise<any> => {
     const projects = await docClient.query(params);
 
     return {
-      status: 200,
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(projects.Items),
     };
   } catch (error: any) {
     return {
-      status: 500,
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: `Error retrieving projects: ${error.message}`,
       }),

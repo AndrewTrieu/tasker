@@ -18,12 +18,14 @@ export const handler = async (event: any): Promise<any> => {
     const userTasks = [...authorTasks, ...assigneeTasks];
 
     return {
-      status: 200,
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userTasks),
     };
   } catch (error: any) {
     return {
-      status: 500,
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: `Error retrieving tasks for user: ${error.message}`,
       }),

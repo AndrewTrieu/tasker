@@ -40,12 +40,14 @@ export const handler = async (event: any): Promise<any> => {
     );
 
     return {
-      status: 200,
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(teamsWithUsernames),
     };
   } catch (error: any) {
     return {
-      status: 500,
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: `Error retrieving teams: ${error.message}`,
       }),

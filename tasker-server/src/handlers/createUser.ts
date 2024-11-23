@@ -10,7 +10,7 @@ const client = new DynamoDBClient({ region: SLS_REGION });
 const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
-  const { username, cognitoId } = event.body;
+  const { username, cognitoId } = JSON.parse(event.body);
   const teamId = fetchRandomTeamId();
 
   try {
@@ -31,12 +31,14 @@ export const handler = async (event: any): Promise<any> => {
     await docClient.put(params);
 
     return {
-      status: 201,
+      statusCode: 201,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newUser),
     };
   } catch (error: any) {
     return {
-      status: 500,
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message: `Error creating user: ${error.message}`,
       }),
