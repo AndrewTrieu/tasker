@@ -70,7 +70,12 @@ const Sidebar = () => {
           )}
         </div>
         <div className="flex items-center gap-5 border-y-[1.5px] border-gray-200 px-8 py-4 dark:border-gray-700">
-          <Image src="/logo.png" alt="logo" width={40} height={40} />
+          <Image
+            src={`${process.env.S3_PUBLIC_IMAGE_URL}/logo.png`}
+            alt="logo"
+            width={40}
+            height={40}
+          />
           <div>
             <h3 className="text-md font-bold tracking-widest dark:text-gray-200">
               Tasker.IO
@@ -93,7 +98,6 @@ const Sidebar = () => {
         <button
           onClick={() =>
             setShowProjects((prev) => {
-              console.log(prev);
               return !prev;
             })
           }
@@ -109,10 +113,10 @@ const Sidebar = () => {
         {showProjects &&
           projects?.map((project) => (
             <SidebarLink
-              key={project.id}
+              key={project.projectId}
               icon={Briefcase}
               label={project.name}
-              href={`/projects/${project.id}`}
+              href={`/projects/${project.projectId}`}
             />
           ))}
 
@@ -158,7 +162,7 @@ const Sidebar = () => {
           <div className="align-center flex h-9 w-9 justify-center">
             {!!currentUserDetails?.profilePictureUrl ? (
               <Image
-                src={`/${currentUserDetails?.profilePictureUrl}`}
+                src={`${process.env.S3_PUBLIC_IMAGE_URL}/${currentUserDetails?.profilePictureUrl}`}
                 alt={currentUserDetails?.username || "User Profile Picture"}
                 width={100}
                 height={50}

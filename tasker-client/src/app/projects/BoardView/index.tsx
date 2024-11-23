@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useGetTasksQuery, useUpdateTaskStatusMutation } from "@/state/api";
-import React from "react";
+import {
+  Status,
+  useGetTasksQuery,
+  useUpdateTaskStatusMutation,
+} from "@/state/api";
+import React, { useEffect, useState } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Task as TaskType } from "@/state/api";
@@ -9,22 +13,40 @@ import { format } from "date-fns";
 import Image from "next/image";
 
 type BoardProps = {
-  id: string;
+  projectId: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
 const taskStatus = ["To Do", "In Progress", "Test/Review", "Done"];
 
-const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
+const BoardView = ({ projectId, setIsModalNewTaskOpen }: BoardProps) => {
   const {
-    data: tasks,
+    data: fetchedTasks,
     isLoading,
     error,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  } = useGetTasksQuery({ projectId });
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
+  const [tasks, setTasks] = useState<TaskType[]>([]);
 
-  const moveTask = (taskId: number, toStatus: string) => {
-    updateTaskStatus({ taskId, status: toStatus });
+  useEffect(() => {
+    if (fetchedTasks) {
+      setTasks(fetchedTasks);
+    }
+  }, [fetchedTasks]);
+
+  const moveTask = async (taskId: string, toStatus: string) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.taskId === taskId ? { ...task, status: toStatus as Status } : task,
+      ),
+    );
+
+    try {
+      await updateTaskStatus({ taskId, status: toStatus });
+    } catch (error) {
+      console.error("Failed to update task status:", error);
+      setTasks(fetchedTasks || []);
+    }
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -50,7 +72,7 @@ const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
 type TaskColumnProps = {
   status: string;
   tasks: TaskType[];
-  moveTask: (taskId: number, toStatus: string) => void;
+  moveTask: (taskId: string, toStatus: string) => void;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
@@ -62,7 +84,7 @@ const TaskColumn = ({
 }: TaskColumnProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
-    drop: (item: { id: number }) => moveTask(item.id, status),
+    drop: (item: { id: string }) => moveTask(item.id, status),
     collect: (monitor: any) => ({
       isOver: !!monitor.isOver(),
     }),
@@ -116,7 +138,7 @@ const TaskColumn = ({
       {tasks
         .filter((task) => task.status === status)
         .map((task) => (
-          <Task key={task.id} task={task} />
+          <Task key={task.taskId} task={task} />
         ))}
     </div>
   );
@@ -129,7 +151,7 @@ type TaskProps = {
 const Task = ({ task }: TaskProps) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "task",
-    item: { id: task.id },
+    item: { id: task.taskId },
     collect: (monitor: any) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -175,7 +197,7 @@ const Task = ({ task }: TaskProps) => {
     >
       {task.attachments && task.attachments.length > 0 && (
         <Image
-          src={`/${task.attachments[0].fileURL}`}
+          src={`${process.env.S3_PUBLIC_IMAGE_URL}/${task.attachments[0].fileURL}`}
           alt={task.attachments[0].fileName}
           width={400}
           height={200}
@@ -227,7 +249,7 @@ const Task = ({ task }: TaskProps) => {
             {task.assignee && (
               <Image
                 key={task.assignee.userId}
-                src={`/${task.assignee.profilePictureUrl!}`}
+                src={`${process.env.S3_PUBLIC_IMAGE_URL}/${task.assignee.profilePictureUrl!}`}
                 alt={task.assignee.username}
                 width={30}
                 height={30}
@@ -237,7 +259,7 @@ const Task = ({ task }: TaskProps) => {
             {task.author && (
               <Image
                 key={task.author.userId}
-                src={`/${task.author.profilePictureUrl!}`}
+                src={`${process.env.S3_PUBLIC_IMAGE_URL}/${task.author.profilePictureUrl!}`}
                 alt={task.author.username}
                 width={30}
                 height={30}

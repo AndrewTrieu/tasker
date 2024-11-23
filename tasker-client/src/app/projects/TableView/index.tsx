@@ -7,7 +7,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React from "react";
 
 type Props = {
-  id: string;
+  projectId: string;
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
@@ -29,7 +29,7 @@ const columns: GridColDef[] = [
     renderCell: (params) => (
       <span
         className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-          params.value === "In Progress"
+          params.value === "Work In Progress"
             ? "bg-green-200 text-green-600"
             : params.value === "Test/Review"
               ? "bg-green-200 text-green-600"
@@ -93,13 +93,9 @@ const columns: GridColDef[] = [
   },
 ];
 
-const TableView = ({ id, setIsModalNewTaskOpen }: Props) => {
+const TableView = ({ projectId, setIsModalNewTaskOpen }: Props) => {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  const { data: tasks, error, isLoading } = useGetTasksQuery({ projectId });
 
   if (isLoading) return <div>Loading...</div>;
   if (error || !tasks) return <div>An error occurred while fetching tasks</div>;
@@ -123,6 +119,7 @@ const TableView = ({ id, setIsModalNewTaskOpen }: Props) => {
       <DataGrid
         rows={tasks || []}
         columns={columns}
+        getRowId={(row) => row.taskId}
         className="border border-gray-200 bg-white shadow dark:border-stroke-dark dark:bg-dark-secondary dark:text-gray-200"
         sx={dataGridSxStyles(isDarkMode)}
       />

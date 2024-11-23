@@ -80,9 +80,9 @@ export const api = createApi({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
       const session = await fetchAuthSession();
-      const { accessToken } = session.tokens ?? {};
-      if (accessToken) {
-        headers.set("Authorization", `Bearer ${accessToken}`);
+      const { idToken } = session.tokens ?? {};
+      if (idToken) {
+        headers.set("Authorization", `Bearer ${idToken}`);
       }
       return headers;
     },
@@ -120,7 +120,7 @@ export const api = createApi({
       }),
       invalidatesTags: ["Projects"],
     }),
-    getTasks: build.query<Task[], { projectId: number }>({
+    getTasks: build.query<Task[], { projectId: string }>({
       query: ({ projectId }) => `tasks?projectId=${projectId}`,
       providesTags: (result) =>
         result

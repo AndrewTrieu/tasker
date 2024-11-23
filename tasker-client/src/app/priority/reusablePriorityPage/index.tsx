@@ -83,7 +83,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     data: tasks,
     isLoading,
     isError: isTasksError,
-  } = useGetTasksByUserQuery(userId || 0, {
+  } = useGetTasksByUserQuery(userId || "", {
     skip: userId === null,
   });
 
@@ -135,7 +135,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
       ) : view === "list" ? (
         <div className="grid grid-cols-1 gap-4">
           {filteredTasks?.map((task: Task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard key={task.taskId} task={task} />
           ))}
         </div>
       ) : (
@@ -146,7 +146,7 @@ const ReusablePriorityPage = ({ priority }: Props) => {
               rows={filteredTasks}
               columns={columns}
               checkboxSelection
-              getRowId={(row) => row.id}
+              getRowId={(row) => row.taskId}
               className="border border-gray-200 bg-white shadow dark:border-stroke-dark dark:bg-dark-secondary dark:text-gray-200"
               sx={dataGridSxStyles(isDarkMode)}
             />

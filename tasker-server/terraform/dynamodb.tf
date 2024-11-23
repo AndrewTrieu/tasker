@@ -1,11 +1,11 @@
 resource "aws_dynamodb_table" "tasker_project_table" {
   name         = "tasker-project-table"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "type"
+  hash_key     = "category"
   range_key    = "projectId"
 
   attribute {
-    name = "type"
+    name = "category"
     type = "S"
   }
 
@@ -30,11 +30,11 @@ resource "aws_ssm_parameter" "tasker_project_table_arn" {
 resource "aws_dynamodb_table" "tasker_user_table" {
   name         = "tasker-user-table"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "type"
+  hash_key     = "category"
   range_key    = "cognitoId"
 
   attribute {
-    name = "type"
+    name = "category"
     type = "S"
   }
 
@@ -50,7 +50,7 @@ resource "aws_dynamodb_table" "tasker_user_table" {
 
   global_secondary_index {
     name            = "GSI-user-id"
-    hash_key        = "type"
+    hash_key        = "category"
     range_key       = "userId"
     projection_type = "ALL"
   }
@@ -71,11 +71,11 @@ resource "aws_ssm_parameter" "tasker_user_table_arn" {
 resource "aws_dynamodb_table" "tasker_team_table" {
   name         = "tasker-team-table"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "type"
+  hash_key     = "category"
   range_key    = "teamId"
 
   attribute {
-    name = "type"
+    name = "category"
     type = "S"
   }
 
@@ -100,11 +100,11 @@ resource "aws_ssm_parameter" "tasker_team_table_arn" {
 resource "aws_dynamodb_table" "tasker_task_table" {
   name         = "tasker-task-table"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "type"
+  hash_key     = "category"
   range_key    = "taskId"
 
   attribute {
-    name = "type"
+    name = "category"
     type = "S"
   }
 
@@ -130,21 +130,21 @@ resource "aws_dynamodb_table" "tasker_task_table" {
 
   global_secondary_index {
     name            = "GSI-project-id"
-    hash_key        = "type"
+    hash_key        = "category"
     range_key       = "projectId"
     projection_type = "ALL"
   }
 
   global_secondary_index {
     name            = "GSI-author-user-id"
-    hash_key        = "type"
+    hash_key        = "category"
     range_key       = "authorUserId"
     projection_type = "ALL"
   }
 
   global_secondary_index {
     name            = "GSI-assigned-user-id"
-    hash_key        = "type"
+    hash_key        = "category"
     range_key       = "assignedUserId"
     projection_type = "ALL"
   }
@@ -165,11 +165,11 @@ resource "aws_ssm_parameter" "tasker_task_table_arn" {
 resource "aws_dynamodb_table" "tasker_task_extra_table" {
   name         = "tasker-task-extra-table"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "type"
+  hash_key     = "category"
   range_key    = "id"
 
   attribute {
-    name = "type"
+    name = "category"
     type = "S"
   }
 
@@ -185,7 +185,7 @@ resource "aws_dynamodb_table" "tasker_task_extra_table" {
 
   global_secondary_index {
     name            = "GSI-task-id"
-    hash_key        = "type"
+    hash_key        = "category"
     range_key       = "taskId"
     projection_type = "ALL"
   }

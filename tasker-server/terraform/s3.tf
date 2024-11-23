@@ -1,11 +1,22 @@
 resource "aws_s3_bucket" "tasker_public_images" {
   bucket = "tasker-public-images"
-
-  tags = {
-    Environment = "Dev"
-  }
 }
 
+resource "aws_s3_bucket_policy" "public_read_policy" {
+  bucket = aws_s3_bucket.tasker_public_images.id
+  policy = data.aws_iam_policy_document.public_read_policy.json
+}
+
+data "aws_iam_policy_document" "public_read_policy" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.tasker_public_images.arn}/*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
+}
 
 resource "aws_s3_bucket_ownership_controls" "tasker_public_images_ownership_controls" {
   bucket = aws_s3_bucket.tasker_public_images.id
