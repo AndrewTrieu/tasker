@@ -3,22 +3,23 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd tasker-client
         - npm ci
     build:
       commands:
-        - cd tasker-client
         - npm run build
   artifacts:
-    baseDirectory: tasker-client/.next
+    baseDirectory: .next
     files:
       - "**/*"
   cache:
     paths:
-      - tasker-client/node_modules/**/*
+      - node_modules/**/*
+      - .next/cache/**/*
+      - .npm/**/*
 env:
   variables:
-    # To be populated by GitHub Actions
+    AMPLIFY_MONOREPO_APP_ROOT: tasker-client
+    AMPLIFY_DIFF_DEPLOY: false
     NEXT_PUBLIC_API_BASE_URL: ""
     NEXT_PUBLIC_COGNITO_USER_POOL_ID: ""
     NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID: ""
