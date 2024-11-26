@@ -10,7 +10,6 @@ provider:
   runtime: nodejs20.x
   environment:
     SLS_REGION: ${self:provider.region}
-    API_BASE_URL: ${ssm:/tasker/api/base-url}
     TASKER_TASK_TABLE_NAME: ${ssm:/tasker/dynamodb/task-table-name}
     TASKER_PROJECT_TABLE_NAME: ${ssm:/tasker/dynamodb/project-table-name}
     TASKER_USER_TABLE_NAME: ${ssm:/tasker/dynamodb/user-table-name}
