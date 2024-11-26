@@ -1,0 +1,45 @@
+name: Deploy with Serverless Framework
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "tasker-server/**"
+  workflow_dispatch: # This is a manual trigger
+
+jobs:
+  deploy-serverless:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Dependencies
+        working-directory: tasker-server
+        run: npm ci
+
+      - name: Run Tests
+        working-directory: tasker-server
+        run: npm run test:ci
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy with Serverless GitHub Action
+        uses: serverless/github-action@v3.2
+        with:
+          args: -c "cd ./tasker-server && serverless deploy"
+          entrypoint: /bin/sh

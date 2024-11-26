@@ -1174,7 +1174,7 @@ export const handler = async () => {
       console.info(`Data population for table ${tableName} complete.`);
     }
 
-    console.log("Data population complete.");
+    console.info("Data population complete.");
   } catch (error) {
     console.error("Failed to populate data:", error);
   }

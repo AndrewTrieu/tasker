@@ -10,10 +10,9 @@ const client = new DynamoDBClient({ region: SLS_REGION });
 const docClient = DynamoDBDocument.from(client);
 
 export const handler = async (event: any): Promise<any> => {
-  console.info(`Event: ${JSON.stringify(event)}`);
   const username =
     event.request.userAttributes["preferred_username"] || event.userName;
-  const cognitoId = event.userName;
+  const cognitoId = event.request.userAttributes["sub"];
   const teamId = await fetchRandomTeamId();
 
   try {

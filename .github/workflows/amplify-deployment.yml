@@ -1,0 +1,110 @@
+name: Set Amplify Environment Variables and Trigger Deployment
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "tasker-client/**"
+  workflow_dispatch: # Manual trigger
+
+env:
+  APPLICATION_NAME: tasker
+
+jobs:
+  deploy-amplify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Verify AWS CLI Installation
+        run: aws --version
+
+      - name: Install Amplify CLI
+        run: npm install -g @aws-amplify/cli
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Fetch Environment Variables from AWS SSM
+        run: |
+          export NEXT_PUBLIC_API_BASE_URL=$(aws ssm get-parameter --name "/tasker/api/base-url" --query "Parameter.Value" --output text || exit 1)
+          export NEXT_PUBLIC_COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/tasker/cognito/user-pool-id" --query "Parameter.Value" --output text || exit 1)
+          export NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/tasker/cognito/client-id" --query "Parameter.Value" --output text || exit 1)
+          export NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL=$(aws ssm get-parameter --name "/tasker/s3/public-images-url" --query "Parameter.Value" --output text || exit 1)
+
+          echo "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_COGNITO_USER_POOL_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_ID" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL=$NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL" >> $GITHUB_ENV
+        
+      - name: Load Build Spec from `tasker-client/amplify.json`
+        run: |
+          build_spec=$(jq -c . tasker-client/amplify.json)
+          echo "build_spec=$build_spec" >> $GITHUB_ENV
+
+      - name: Initialize or Update Amplify App
+        id: amplify
+        run: |
+          echo "Fetching Amplify apps in region ${{ secrets.AWS_REGION }}..."
+          app_list=$(aws amplify list-apps --region ${{ secrets.AWS_REGION }})
+          app_id=$(echo "$app_list" | jq -r '.apps[] | select(.name == "${{ env.APPLICATION_NAME }}") | .appId')
+
+          if [ -n "$app_id" ]; then
+            echo "Amplify App already exists. Updating..."
+            echo "app_id=$app_id" >> $GITHUB_ENV
+            aws amplify update-app \
+              --app-id "$app_id" \
+              --environment-variables "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL,NEXT_PUBLIC_COGNITO_USER_POOL_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_ID,NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID,NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL=$NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL,AMPLIFY_MONOREPO_APP_ROOT=tasker-client,AMPLIFY_DIFF_DEPLOY=false" \
+              --build-spec "$build_spec"
+          else
+            echo "Creating a new Amplify app..."
+            formatted_repo_url=$(echo "${{ github.repositoryUrl }}" | sed 's|git://|https://|')
+            create_app=$(aws amplify create-app \
+              --name "${{ env.APPLICATION_NAME }}" \
+              --platform WEB_COMPUTE \
+              --repository "$formatted_repo_url" \
+              --environment-variables "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL,NEXT_PUBLIC_COGNITO_USER_POOL_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_ID,NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID,NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL=$NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL,AMPLIFY_MONOREPO_APP_ROOT=tasker-client,AMPLIFY_DIFF_DEPLOY=false" \
+              --iam-service-role-arn "${{ secrets.AWS_ROLE_TO_ASSUME }}" \
+              --region "${{ secrets.AWS_REGION }}" \
+              --access-token "${{ secrets.PAT_TOKEN }}" \
+              --build-spec "$build_spec" \
+              --output "json"
+            )
+            app_id=$(echo $create_app | jq -r '.app.appId')
+            echo "app_id=$app_id" >> $GITHUB_ENV
+          fi
+
+      - name: Create or Update Amplify Branch
+        run: |
+          echo "Checking if branch ${{ github.ref_name}} exists..."
+          branch_exists=$(aws amplify list-branches \
+            --app-id "$app_id" \
+            --query "branches[?branchName=='${{ github.ref_name}}'] | length(@)" \
+            --output text)
+
+          if [ "$branch_exists" -gt 0 ]; then
+            echo "Branch ${{ github.ref_name}} already exists. Skipping..."
+          else
+            echo "Branch ${{ github.ref_name}} does not exist. Creating it..."
+            aws amplify create-branch \
+              --app-id "$app_id" \
+              --branch-name "${{ github.ref_name}}"
+          fi
+
+      - name: Trigger Amplify Deployment
+        run: |
+          echo "Triggering deployment for branch ${{ github.ref_name}}..."
+          aws amplify start-job \
+            --app-id "$app_id" \
+            --branch-name "${{ github.ref_name}}" \
+            --job-type RELEASE
