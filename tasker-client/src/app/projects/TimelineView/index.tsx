@@ -21,16 +21,19 @@ const Timeline = ({ projectId, setIsModalNewTaskOpen }: Props) => {
   });
 
   const ganttTasks = useMemo(() => {
+    if (!tasks || tasks.length === 0) return [];
     return (
-      tasks?.map((task) => ({
-        start: new Date(task.startDate as string),
-        end: new Date(task.dueDate as string),
-        name: task.title,
-        id: `Task-${task.taskId}`,
-        type: "task" as TaskTypeItems,
-        progress: task.points ? (task.points / 10) * 100 : 0,
-        isDisabled: false,
-      })) || []
+      tasks
+        ?.filter((task) => task.startDate && task.dueDate)
+        .map((task) => ({
+          start: new Date(task.startDate as string),
+          end: new Date(task.dueDate as string),
+          name: task.title,
+          id: `Task-${task.taskId}`,
+          type: "task" as TaskTypeItems,
+          progress: task.points ? (task.points / 10) * 100 : 0,
+          isDisabled: false,
+        })) || []
     );
   }, [tasks]);
 
@@ -66,16 +69,20 @@ const Timeline = ({ projectId, setIsModalNewTaskOpen }: Props) => {
       </div>
 
       <div className="overflow-hidden rounded-md bg-white shadow dark:bg-dark-secondary dark:text-white">
-        <div className="timeline">
-          <Gantt
-            tasks={ganttTasks}
-            {...displayOptions}
-            columnWidth={displayOptions.viewMode === ViewMode.Month ? 150 : 100}
-            listCellWidth="100px"
-            barBackgroundColor={isDarkMode ? "#101214" : "#aeb8c2"}
-            barBackgroundSelectedColor={isDarkMode ? "#000" : "#9ba1a6"}
-          />
-        </div>
+        {ganttTasks.length > 0 && (
+          <div className="timeline">
+            <Gantt
+              tasks={ganttTasks}
+              {...displayOptions}
+              columnWidth={
+                displayOptions.viewMode === ViewMode.Month ? 150 : 100
+              }
+              listCellWidth="100px"
+              barBackgroundColor={isDarkMode ? "#101214" : "#aeb8c2"}
+              barBackgroundSelectedColor={isDarkMode ? "#000" : "#9ba1a6"}
+            />
+          </div>
+        )}
         <div className="px-4 pb-5 pt-1">
           <button
             className="flex items-center rounded bg-blue-primary px-3 py-2 text-white hover:bg-blue-600"

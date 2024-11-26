@@ -17,13 +17,17 @@ export const handler = async (event: any): Promise<any> => {
 
     const userTasks = [...authorTasks, ...assigneeTasks];
 
+    const uniqueTasks = Array.from(
+      new Map(userTasks.map((task) => [task.taskId, task])).values()
+    );
+
     return {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify(userTasks),
+      body: JSON.stringify(uniqueTasks),
     };
   } catch (error: any) {
     return {

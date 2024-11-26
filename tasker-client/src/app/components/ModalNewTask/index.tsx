@@ -1,6 +1,11 @@
 import Modal from "@/app/components/Modal";
-import { Priority, Status, useCreateTaskMutation } from "@/state/api";
-import React, { useState } from "react";
+import {
+  Priority,
+  Status,
+  useCreateTaskMutation,
+  useGetAuthUserQuery,
+} from "@/state/api";
+import React, { useEffect, useState } from "react";
 import { formatISO } from "date-fns";
 
 type Props = {
@@ -22,22 +27,28 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [assignedUserId, setAssignedUserId] = useState("");
   const [projectId, setProjectId] = useState("");
 
+  const { data: currentUser } = useGetAuthUserQuery({});
+  const userId = currentUser?.userDetails?.userId ?? null;
+
+  useEffect(() => {
+    setAuthorUserId(userId || "");
+  }, [userId]);
+
   const handleSubmit = async () => {
-    console.log(title, authorUserId, id, projectId);
+    if (!(title && authorUserId && (id !== null || projectId))) return;
 
-    console.log("Creating task 1..");
-    if (
-      !(title && authorUserId && assignedUserId && (id !== null || projectId))
-    )
-      return;
-    console.log("Creating task 2...");
+    const finalAssignedUserId = assignedUserId.trim() || authorUserId;
 
-    const formattedStartDate = formatISO(new Date(startDate), {
-      representation: "complete",
-    });
-    const formattedDueDate = formatISO(new Date(dueDate), {
-      representation: "complete",
-    });
+    const formattedStartDate =
+      startDate ??
+      formatISO(new Date(startDate), {
+        representation: "complete",
+      });
+    const formattedDueDate =
+      dueDate ??
+      formatISO(new Date(dueDate), {
+        representation: "complete",
+      });
 
     await createTask({
       title,
@@ -48,16 +59,15 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
       startDate: formattedStartDate,
       dueDate: formattedDueDate,
       authorUserId: authorUserId,
-      assignedUserId: assignedUserId,
+      assignedUserId: finalAssignedUserId,
       projectId: id !== null ? id : projectId,
     });
+
+    onClose();
   };
 
   const isFormValid = () => {
-    console.log(title, authorUserId, id, projectId);
-    return (
-      title && authorUserId && assignedUserId && (id !== null || projectId)
-    );
+    return title && authorUserId && (id !== null || projectId);
   };
 
   const selectStyles =
@@ -92,9 +102,13 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
           <select
             className={selectStyles}
             value={status}
-            onChange={(e) =>
-              setStatus(Status[e.target.value as keyof typeof Status])
-            }
+            onChange={(e) => {
+              const selectedStatus = Object.entries(Status).find(
+                ([, value]) => value === e.target.value,
+              )?.[0] as keyof typeof Status;
+
+              setStatus(selectedStatus ? Status[selectedStatus] : Status.ToDo);
+            }}
           >
             <option value="">Select Status</option>
             <option value={Status.ToDo}>To Do</option>
@@ -139,13 +153,15 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
             onChange={(e) => setDueDate(e.target.value)}
           />
         </div>
-        <input
-          type="text"
-          className={inputStyles}
-          placeholder="Author User ID"
-          value={authorUserId}
-          onChange={(e) => setAuthorUserId(e.target.value)}
-        />
+        {authorUserId === "" && (
+          <input
+            type="text"
+            className={inputStyles}
+            placeholder="Author User ID"
+            value={authorUserId}
+            onChange={(e) => setAuthorUserId(e.target.value)}
+          />
+        )}
         <input
           type="text"
           className={inputStyles}

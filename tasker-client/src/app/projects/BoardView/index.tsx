@@ -24,6 +24,7 @@ const BoardView = ({ projectId, setIsModalNewTaskOpen }: BoardProps) => {
     data: fetchedTasks,
     isLoading,
     error,
+    refetch,
   } = useGetTasksQuery({ projectId });
   const [updateTaskStatus] = useUpdateTaskStatusMutation();
   const [tasks, setTasks] = useState<TaskType[]>([]);
@@ -43,6 +44,7 @@ const BoardView = ({ projectId, setIsModalNewTaskOpen }: BoardProps) => {
 
     try {
       await updateTaskStatus({ taskId, status: toStatus });
+      await refetch();
     } catch (error) {
       console.error("Failed to update task status:", error);
       setTasks(fetchedTasks || []);
@@ -197,7 +199,7 @@ const Task = ({ task }: TaskProps) => {
     >
       {task.attachments && task.attachments.length > 0 && (
         <Image
-          src={`${process.env.S3_PUBLIC_IMAGE_URL}/${task.attachments[0].fileURL}`}
+          src={`${process.env.NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL}/${task.attachments[0].fileURL}`}
           alt={task.attachments[0].fileName}
           width={400}
           height={200}
@@ -248,8 +250,8 @@ const Task = ({ task }: TaskProps) => {
           <div className="flex -space-x-[6px] overflow-hidden">
             {task.assignee && (
               <Image
-                key={task.assignee.userId}
-                src={`${process.env.S3_PUBLIC_IMAGE_URL}/${task.assignee.profilePictureUrl!}`}
+                key={`assignee#${task.assignee.userId}`}
+                src={`${process.env.NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL}/${task.assignee.profilePictureUrl!}`}
                 alt={task.assignee.username}
                 width={30}
                 height={30}
@@ -258,8 +260,8 @@ const Task = ({ task }: TaskProps) => {
             )}
             {task.author && (
               <Image
-                key={task.author.userId}
-                src={`${process.env.S3_PUBLIC_IMAGE_URL}/${task.author.profilePictureUrl!}`}
+                key={`author#${task.author.userId}`}
+                src={`${process.env.NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL}/${task.author.profilePictureUrl!}`}
                 alt={task.author.username}
                 width={30}
                 height={30}

@@ -58,19 +58,19 @@ jobs:
           export NEXT_PUBLIC_API_BASE_URL=$(aws ssm get-parameter --name "/tasker/api/base-url" --query "Parameter.Value" --output text)
           export NEXT_PUBLIC_COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/tasker/cognito/user-pool-id" --query "Parameter.Value" --output text)
           export NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/tasker/cognito/client-id" --query "Parameter.Value" --output text)
-          export S3_PUBLIC_IMAGE_URL=$(aws ssm get-parameter --name "/tasker/s3/public-images-url" --query "Parameter.Value" --output text)
+          export NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL=$(aws ssm get-parameter --name "/tasker/s3/public-images-url" --query "Parameter.Value" --output text)
 
           echo "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_COGNITO_USER_POOL_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_ID" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID" >> $GITHUB_ENV
-          echo "S3_PUBLIC_IMAGE_URL=$S3_PUBLIC_IMAGE_URL" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL=$NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL" >> $GITHUB_ENV
 
       - name: Set Amplify Environment Variables
         run: |
           amplify env set NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
           amplify env set NEXT_PUBLIC_COGNITO_USER_POOL_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_ID
           amplify env set NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID=$NEXT_PUBLIC_COGNITO_USER_POOL_CLIENT_ID
-          amplify env set S3_PUBLIC_IMAGE_URL=$S3_PUBLIC_IMAGE_URL
+          amplify env set NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL=$NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL
 
       - name: Deploy Amplify App
         run: |

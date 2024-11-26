@@ -16,7 +16,7 @@ const TaskCard = ({ task }: Props) => {
           <div className="flex flex-wrap">
             {task.attachments && task.attachments.length > 0 && (
               <Image
-                src={`${process.env.S3_PUBLIC_IMAGE_URL}/${task.attachments[0].fileURL}`}
+                src={`${process.env.NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL}/${task.attachments[0].fileURL}`}
                 alt={task.attachments[0].fileName}
                 width={400}
                 height={200}

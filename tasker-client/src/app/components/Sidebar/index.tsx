@@ -71,7 +71,7 @@ const Sidebar = () => {
         </div>
         <div className="flex items-center gap-5 border-y-[1.5px] border-gray-200 px-8 py-4 dark:border-gray-700">
           <Image
-            src={`${process.env.S3_PUBLIC_IMAGE_URL}/logo.png`}
+            src={`${process.env.NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL}/logo.png`}
             alt="logo"
             width={40}
             height={40}
@@ -162,7 +162,7 @@ const Sidebar = () => {
           <div className="align-center flex h-9 w-9 justify-center">
             {!!currentUserDetails?.profilePictureUrl ? (
               <Image
-                src={`${process.env.S3_PUBLIC_IMAGE_URL}/${currentUserDetails?.profilePictureUrl}`}
+                src={`${process.env.NEXT_PUBLIC_S3_PUBLIC_IMAGE_URL}/${currentUserDetails?.profilePictureUrl}`}
                 alt={currentUserDetails?.username || "User Profile Picture"}
                 width={100}
                 height={50}
