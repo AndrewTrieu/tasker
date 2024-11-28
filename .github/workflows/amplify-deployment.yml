@@ -104,7 +104,32 @@ jobs:
       - name: Trigger Amplify Deployment
         run: |
           echo "Triggering deployment for branch ${{ github.ref_name}}..."
-          aws amplify start-job \
+          deployment_id=$(aws amplify start-job \
             --app-id "$app_id" \
             --branch-name "${{ github.ref_name}}" \
-            --job-type RELEASE
+            --job-type RELEASE \
+            --output json | jq -r .jobSummary.jobId)
+
+          echo "Deployment triggered. Job ID: $deployment_id"
+          echo "deployment_id=$deployment_id" >> $GITHUB_ENV
+
+      - name: Wait for Amplify Deployment to Complete
+        run: |
+          echo "Waiting for Amplify deployment to complete..."
+          while true; do
+            job_status=$(aws amplify get-job \
+              --app-id "$app_id" \
+              --branch-name "${{ github.ref_name}}" \
+              --job-id "$deployment_id" \
+              --output json | jq -r .job.summary.status)
+            if [ "$job_status" == "SUCCEED" ]; then
+              echo "Amplify deployment succeeded."
+              break
+            elif [ "$job_status" == "FAILED" ]; then
+              echo "Amplify deployment failed."
+              exit 1
+            else
+              echo "Deployment in progress. Current status: $job_status"
+              sleep 30
+            fi
+          done
