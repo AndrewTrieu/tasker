@@ -67,18 +67,18 @@ Steps:
 npm run infra:deploy
 ```
 
-(Optional) To populate the database with sample data, run the following command:
-
-```bash
-sls invoke local function -f populateSeedData 
-```
-
 2. Deploy the backend using the Serverless Framework. Run the following commands:
 
 ```bash
 cd tasker-server
 npm install
 npm sls:deploy
+```
+
+(Optional) To populate the database with sample data, run the following command:
+
+```bash
+sls invoke local function -f populateSeedData 
 ```
 
 3. Deploy the frontend using Amplify. It is recommended to use Amplify Console for this. Follow the instructions in the Amplify Console to deploy the frontend. Set the following environment variables in the Amplify Console to the values created in System Manager's Parameter Store:
